@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{Error, Result};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub enum TaskStatus {
     Todo,
     InProgress,
@@ -32,7 +32,7 @@ impl TaskStatus {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Task {
     pub id: TaskId,
     pub description: TaskDescription,
@@ -43,9 +43,7 @@ pub struct Task {
 
 impl Task {
     pub fn new(id: TaskId, description: TaskDescription) -> Self {
-        let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH);
-        // todo: handle this "rare"? error
-        let now = now.unwrap_or_default().as_secs();
+        let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap_or_default().as_secs();
         Task {
             id,
             description,
@@ -53,6 +51,13 @@ impl Task {
             created_at: now,
             updated_at: now,
         }
+    }
+
+    pub fn mark_as_done(&mut self) {
+        self.status = TaskStatus::Done;
+
+        let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap_or_default().as_secs();
+        self.updated_at = now;
     }
 }
 
@@ -68,7 +73,7 @@ Updated At: {}
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct TaskId {
     id: u32,
 }

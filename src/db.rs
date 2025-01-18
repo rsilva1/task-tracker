@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::{task::Task, Error, Result};
+use crate::{task::{Task, TaskId}, Error, Result};
 
 const DB_PATH: &str = ".roadmap-task-tracker.json";
 
@@ -26,7 +26,7 @@ impl Db {
         }
     }
 
-    pub fn save_task(&mut self, task: Task) -> Result<()> {
+    pub fn create_task(&mut self, task: Task) -> Result<()> {
         let tasks = &mut self.tasks;
         tasks.push(task);
         let content = serde_json::json!(tasks).to_string();
@@ -36,6 +36,20 @@ impl Db {
 
     pub fn count_tasks(&self) -> u32 {
         self.tasks.len() as u32
+    }
+
+    pub fn get_task(&mut self, id: &TaskId) -> Option<&Task> {
+        self.tasks.iter().find(|task| task.id == *id)
+    }
+
+    pub fn update_task(&mut self, id: TaskId, task: Task) -> Result<()> {
+        let position = self.tasks.iter()
+            .position(|task| task.id == id)
+            .ok_or(Error::TaskNotFound { id: id.to_string() })?;
+        self.tasks[position] = task;
+        let content = serde_json::json!(&self.tasks).to_string();
+        std::fs::write(DB_PATH, content).map_err(|_| Error::FailedToPersistChanges)?;
+        Ok(())
     }
 }
 

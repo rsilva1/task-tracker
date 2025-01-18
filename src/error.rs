@@ -18,6 +18,7 @@ pub enum Error {
     FailedToPersistChanges,
     FailedToAccessPersistedData,
     UnknownStatus { status: String },
+    TaskNotFound { id: String },
 }
 
 impl std::error::Error for Error {
@@ -42,6 +43,7 @@ impl std::fmt::Display for Error {
             Error::FailedToPersistChanges => write!(f, "Could not persist changes"),
             Error::FailedToAccessPersistedData => write!(f, "Could not access persisted data"),
             Error::UnknownStatus { status } => write!(f, "Unknown status: {}", status),
+            Error::TaskNotFound { id } => write!(f, "Task not found. Id: {}", id),
         }
     }
 }

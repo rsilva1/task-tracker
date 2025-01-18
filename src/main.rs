@@ -9,7 +9,7 @@ mod error;
 use cli_commands::show_help;
 use command::{parse_command, Command};
 pub use error::{Error, Result};
-use execute_command::{execute_command_add, execute_command_list};
+use execute_command::{execute_command_add, execute_command_list, execute_command_mark_done, execute_command_mark_in_progress};
 
 mod task;
 mod command;
@@ -28,14 +28,18 @@ fn main() {
     let command = parse_command(args).unwrap();
     println!("Command is {:#?}", command);
 
-    let _ = match command {
+    let result = match command {
         Command::CommandAdd(command_add) => execute_command_add(command_add),
         Command::CommandUpdate(command_update) => todo!(),
         Command::CommandDelete(command_delete) => todo!(),
-        Command::CommandMarkInProgress(command_mark_in_progress) => todo!(),
-        Command::CommandMarkDone(command_mark_done) => todo!(),
+        Command::CommandMarkInProgress(command_mark_in_progress) => execute_command_mark_in_progress(command_mark_in_progress),
+        Command::CommandMarkDone(command_mark_done) => execute_command_mark_done(command_mark_done),
         Command::CommandList(command_list) => execute_command_list(command_list),
     };
+
+    if let Err(e) = result {
+        println!("Error: {}", e);
+    }
 
     ()
 }
