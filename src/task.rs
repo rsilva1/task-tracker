@@ -21,6 +21,17 @@ impl std::fmt::Display for TaskStatus {
     }
 }
 
+impl TaskStatus {
+    pub fn from_str(s: &str) -> Result<Self> {
+        match s {
+            "todo" => Ok(TaskStatus::Todo),
+            "in_progress" => Ok(TaskStatus::InProgress),
+            "done" => Ok(TaskStatus::Done),
+            _ => Err(Error::UnknownStatus{ status: s.to_string() })
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Task {
     pub id: TaskId,
@@ -42,6 +53,18 @@ impl Task {
             created_at: now,
             updated_at: now,
         }
+    }
+}
+
+impl std::fmt::Display for Task {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, r#"
+Task: {}
+Description: {}
+Status: {}
+Created At: {}
+Updated At: {}
+"#, self.id, self.description, self.status, self.created_at, self.updated_at)
     }
 }
 

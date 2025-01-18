@@ -28,7 +28,7 @@ pub struct CommandMarkDone {
 
 #[derive(Debug)]
 pub struct CommandList {
-    pub status: TaskStatus,
+    pub status: Option<TaskStatus>,
 }
 
 #[derive(Debug)]
@@ -38,6 +38,7 @@ pub enum Command {
     CommandDelete(CommandDelete),
     CommandMarkInProgress(CommandMarkInProgress),
     CommandMarkDone(CommandMarkDone),
+    CommandList(CommandList),
 }
 
 pub fn parse_command(args: Vec<String>) -> Result<Command> {
@@ -51,6 +52,7 @@ pub fn parse_command(args: Vec<String>) -> Result<Command> {
         "delete" => parse_delete_command(args).map(|cmd| Command::CommandDelete(cmd)),
         "mark-in-progress" => parse_mark_in_progress_command(args).map(|cmd| Command::CommandMarkInProgress(cmd)),
         "mark-done" => parse_mark_done_command(args).map(|cmd| Command::CommandMarkDone(cmd)),
+        "list" => parse_list_command(args).map(|cmd| Command::CommandList(cmd)),
         _ => Err(Error::UnknownCommand{ command: cmd })
     }
 }
@@ -84,6 +86,20 @@ fn parse_mark_done_command(args: Vec<String>) -> Result<CommandMarkDone> {
     validate_args_length(&args, 3)?;
     let id = TaskId::new_from_string(args[2].clone())?;
     Ok(CommandMarkDone { id })
+}
+
+fn parse_list_command(args: Vec<String>) -> Result<CommandList> {
+    if args.len() == 2 {
+        Ok(CommandList { status: None })
+    } else if args.len() == 3 {
+        let status = TaskStatus::from_str(&args[2])?;
+        Ok(CommandList { status: Some(status) })
+    } else {
+        Err(Error::TooManyArguments {
+            max: 3,
+            got: args.len() as u8
+        })
+    }
 }
 
 fn validate_args_length(args: &Vec<String>, expected: u8) -> Result<()> {

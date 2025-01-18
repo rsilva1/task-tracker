@@ -6,7 +6,7 @@ const DB_PATH: &str = ".roadmap-task-tracker.json";
 
 pub struct Db {
     content: String,
-    tasks: Vec<Task>,
+    pub tasks: Vec<Task>,
 }
 
 impl Db {

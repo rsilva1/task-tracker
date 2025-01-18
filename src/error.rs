@@ -5,6 +5,10 @@ pub enum Error {
     UnknownCommand { command: String },
     NoCommand,
     UnknownError,
+    TooManyArguments {
+        max: u8,
+        got: u8,
+    },
     WrongNumberOfArguments {
         expected: u8,
         got: u8,
@@ -13,6 +17,7 @@ pub enum Error {
     IdMustBeNumber { id: String },
     FailedToPersistChanges,
     FailedToAccessPersistedData,
+    UnknownStatus { status: String },
 }
 
 impl std::error::Error for Error {
@@ -27,12 +32,16 @@ impl std::fmt::Display for Error {
             Error::WrongNumberOfArguments { expected, got } => {
                 write!(f, "Wrong number of arguments: Expected {}, got {}", expected, got)
             },
+            Error::TooManyArguments { max, got } => {
+                write!(f, "Wrong number of arguments: Expected up to {}, got {}", max, got)
+            },
             Error::EmptyDescription => write!(f, "Task description cannot be empty"),
             Error::IdMustBeNumber { id } => {
                 write!(f, "Expected numeric id, got {}", id)
             },
             Error::FailedToPersistChanges => write!(f, "Could not persist changes"),
             Error::FailedToAccessPersistedData => write!(f, "Could not access persisted data"),
+            Error::UnknownStatus { status } => write!(f, "Unknown status: {}", status),
         }
     }
 }
