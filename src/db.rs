@@ -51,5 +51,19 @@ impl Db {
         std::fs::write(DB_PATH, content).map_err(|_| Error::FailedToPersistChanges)?;
         Ok(())
     }
+
+    pub fn delete_task(&mut self, id: TaskId) -> Result<()> {
+        let task_count = self.tasks.len();
+        self.tasks = self.tasks.iter()
+            .filter(|task| task.id != id)
+            .cloned()
+            .collect();
+        if self.tasks.len() == task_count {
+            return Err(Error::TaskNotFound{ id: id.to_string() })
+        }
+        let content = serde_json::json!(&self.tasks).to_string();
+        std::fs::write(DB_PATH, content).map_err(|_| Error::FailedToPersistChanges)?;
+        Ok(())
+    }
 }
 

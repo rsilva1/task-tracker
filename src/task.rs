@@ -53,11 +53,18 @@ impl Task {
         }
     }
 
-    pub fn mark_as_done(&mut self) {
-        self.status = TaskStatus::Done;
+    pub fn set_description(&mut self, description: TaskDescription) {
+        self.description = description;
+        self.updated_at = Task::now();
+    }
 
-        let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap_or_default().as_secs();
-        self.updated_at = now;
+    pub fn set_status(&mut self, status: TaskStatus) {
+        self.status = status;
+        self.updated_at = Task::now();
+    }
+
+    fn now() -> u64 {
+        SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap_or_default().as_secs()
     }
 }
 

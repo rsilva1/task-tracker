@@ -9,7 +9,7 @@ mod error;
 use cli_commands::show_help;
 use command::{parse_command, Command};
 pub use error::{Error, Result};
-use execute_command::{execute_command_add, execute_command_list, execute_command_mark_done, execute_command_mark_in_progress};
+use execute_command::{execute_command_add, execute_command_delete, execute_command_list, execute_command_mark_done, execute_command_mark_in_progress, execute_command_update};
 
 mod task;
 mod command;
@@ -25,13 +25,19 @@ fn main() {
         return;
     }
 
-    let command = parse_command(args).unwrap();
+    let command = match parse_command(args) {
+        Ok(command) => command,
+        Err(e) => {
+            println!("Error: {}", e);
+            return
+        }
+    };
     println!("Command is {:#?}", command);
 
     let result = match command {
         Command::CommandAdd(command_add) => execute_command_add(command_add),
-        Command::CommandUpdate(command_update) => todo!(),
-        Command::CommandDelete(command_delete) => todo!(),
+        Command::CommandUpdate(command_update) => execute_command_update(command_update),
+        Command::CommandDelete(command_delete) => execute_command_delete(command_delete),
         Command::CommandMarkInProgress(command_mark_in_progress) => execute_command_mark_in_progress(command_mark_in_progress),
         Command::CommandMarkDone(command_mark_done) => execute_command_mark_done(command_mark_done),
         Command::CommandList(command_list) => execute_command_list(command_list),
