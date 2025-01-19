@@ -27,7 +27,9 @@ impl TaskStatus {
             "todo" => Ok(TaskStatus::Todo),
             "in_progress" => Ok(TaskStatus::InProgress),
             "done" => Ok(TaskStatus::Done),
-            _ => Err(Error::UnknownStatus{ status: s.to_string() })
+            _ => Err(Error::UnknownStatus {
+                status: s.to_string(),
+            }),
         }
     }
 }
@@ -43,7 +45,10 @@ pub struct Task {
 
 impl Task {
     pub fn new(id: TaskId, description: TaskDescription) -> Self {
-        let now = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap_or_default().as_secs();
+        let now = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
         Task {
             id,
             description,
@@ -64,19 +69,26 @@ impl Task {
     }
 
     fn now() -> u64 {
-        SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap_or_default().as_secs()
+        SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs()
     }
 }
 
 impl std::fmt::Display for Task {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, r#"
+        write!(
+            f,
+            r#"
 Task: {}
 Description: {}
 Status: {}
 Created At: {}
 Updated At: {}
-"#, self.id, self.description, self.status, self.created_at, self.updated_at)
+"#,
+            self.id, self.description, self.status, self.created_at, self.updated_at
+        )
     }
 }
 
@@ -93,12 +105,14 @@ impl std::fmt::Display for TaskId {
 
 impl TaskId {
     pub fn new_from_string(id: String) -> Result<Self> {
-        let id = id.parse::<u32>().map_err(|_| Error::IdMustBeNumber { id })?;
-        return Ok(Self { id })
+        let id = id
+            .parse::<u32>()
+            .map_err(|_| Error::IdMustBeNumber { id })?;
+        return Ok(Self { id });
     }
 
     pub fn new(id: u32) -> Result<Self> {
-        return Ok(Self { id })
+        return Ok(Self { id });
     }
 }
 
@@ -116,7 +130,7 @@ impl std::fmt::Display for TaskDescription {
 impl TaskDescription {
     pub fn new(description: String) -> Result<Self> {
         if description.is_empty() {
-            return Err(Error::EmptyDescription)
+            return Err(Error::EmptyDescription);
         }
         Ok(Self { description })
     }

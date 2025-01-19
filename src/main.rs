@@ -9,13 +9,16 @@ mod error;
 use cli_commands::show_help;
 use command::{parse_command, Command};
 pub use error::{Error, Result};
-use execute_command::{execute_command_add, execute_command_delete, execute_command_list, execute_command_mark_done, execute_command_mark_in_progress, execute_command_update};
+use execute_command::{
+    execute_command_add, execute_command_delete, execute_command_list, execute_command_mark_done,
+    execute_command_mark_in_progress, execute_command_update,
+};
 
-mod task;
-mod command;
-mod execute_command;
 mod cli_commands;
+mod command;
 mod db;
+mod execute_command;
+mod task;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -29,16 +32,17 @@ fn main() {
         Ok(command) => command,
         Err(e) => {
             println!("Error: {}", e);
-            return
+            return;
         }
     };
-    println!("Command is {:#?}", command);
 
     let result = match command {
         Command::CommandAdd(command_add) => execute_command_add(command_add),
         Command::CommandUpdate(command_update) => execute_command_update(command_update),
         Command::CommandDelete(command_delete) => execute_command_delete(command_delete),
-        Command::CommandMarkInProgress(command_mark_in_progress) => execute_command_mark_in_progress(command_mark_in_progress),
+        Command::CommandMarkInProgress(command_mark_in_progress) => {
+            execute_command_mark_in_progress(command_mark_in_progress)
+        }
         Command::CommandMarkDone(command_mark_done) => execute_command_mark_done(command_mark_done),
         Command::CommandList(command_list) => execute_command_list(command_list),
     };
@@ -49,4 +53,3 @@ fn main() {
 
     ()
 }
-
