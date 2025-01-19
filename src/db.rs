@@ -17,7 +17,6 @@ fn get_db_path() -> &'static PathBuf {
 }
 
 pub struct Db {
-    content: String,
     pub tasks: Vec<Task>,
 }
 
@@ -29,12 +28,9 @@ impl Db {
                     .map_err(|_| Error::FailedToAccessPersistedData)?;
                 let tasks: Vec<Task> = serde_json::from_str(&content)
                     .map_err(|_| Error::FailedToAccessPersistedData)?;
-                Ok(Self { content, tasks })
+                Ok(Self { tasks })
             }
-            false => Ok(Self {
-                content: "".to_string(),
-                tasks: vec![],
-            }),
+            false => Ok(Self { tasks: vec![] }),
         }
     }
 

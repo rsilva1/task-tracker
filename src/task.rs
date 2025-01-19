@@ -1,5 +1,4 @@
-use std::time::SystemTime;
-
+use chrono::{DateTime, Local};
 use serde::{Deserialize, Serialize};
 
 use crate::{Error, Result};
@@ -39,16 +38,13 @@ pub struct Task {
     pub id: TaskId,
     pub description: TaskDescription,
     pub status: TaskStatus,
-    pub created_at: u64,
-    pub updated_at: u64,
+    pub created_at: DateTime<Local>,
+    pub updated_at: DateTime<Local>,
 }
 
 impl Task {
     pub fn new(id: TaskId, description: TaskDescription) -> Self {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
+        let now = Local::now();
         Task {
             id,
             description,
@@ -60,19 +56,12 @@ impl Task {
 
     pub fn set_description(&mut self, description: TaskDescription) {
         self.description = description;
-        self.updated_at = Task::now();
+        self.updated_at = Local::now();
     }
 
     pub fn set_status(&mut self, status: TaskStatus) {
         self.status = status;
-        self.updated_at = Task::now();
-    }
-
-    fn now() -> u64 {
-        SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs()
+        self.updated_at = Local::now();
     }
 }
 
