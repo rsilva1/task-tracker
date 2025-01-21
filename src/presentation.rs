@@ -42,7 +42,6 @@ pub fn show_help() {
         r#"Usage:
 # Adding a new task
 rtask add "Buy groceries"
-# Output: Task added successfully (ID: 1)
 
 # Updating and deleting tasks
 rtask update 1 "Buy groceries and cook dinner"
