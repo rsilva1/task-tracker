@@ -1,4 +1,7 @@
-use crate::{execute_command::UpdateStatusResult, task::{Task, TaskId}};
+use crate::{
+    execute_command::UpdateStatusResult,
+    task::{Task, TaskId},
+};
 
 pub fn show_tasks(tasks: &Vec<&Task>) {
     tasks.iter().for_each(|task| println!("{}", task));
@@ -6,7 +9,7 @@ pub fn show_tasks(tasks: &Vec<&Task>) {
 
 pub fn show_added_task(task: &Task) {
     println!(
-r#"Added Task:
+        r#"Added Task:
 {task}
     "#
     );
@@ -14,7 +17,7 @@ r#"Added Task:
 
 pub fn show_updated_task(task: &Task) {
     println!(
-r#"Updated Task:
+        r#"Updated Task:
 {task}
     "#
     );
@@ -26,16 +29,17 @@ pub fn show_deleted_task(r: &TaskId) {
 
 pub fn show_updated_status(r: &UpdateStatusResult) {
     println!(
-r#"Task Id: {}
+        r#"Task Id: {}
 Previous status: {}
 New status: {}
-"#, r.task_id, r.old_status, r.new_status
-);
+"#,
+        r.task_id, r.old_status, r.new_status
+    );
 }
 
 pub fn show_help() {
     println!(
-r#"Usage:
+        r#"Usage:
 # Adding a new task
 rtask add "Buy groceries"
 # Output: Task added successfully (ID: 1)

@@ -34,7 +34,7 @@ fn run() -> Result<()> {
 
     if args.len() == 1 {
         show_help();
-        return Ok(())
+        return Ok(());
     }
 
     let command = parse_command(args)?;

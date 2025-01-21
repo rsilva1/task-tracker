@@ -67,7 +67,10 @@ impl CommandExecutor {
         })
     }
 
-    pub fn execute_command_mark_done(&mut self, command: CommandMarkDone) -> Result<UpdateStatusResult> {
+    pub fn execute_command_mark_done(
+        &mut self,
+        command: CommandMarkDone,
+    ) -> Result<UpdateStatusResult> {
         let task = self.db.get_task(&command.id).ok_or(Error::TaskNotFound {
             id: command.id.to_string(),
         })?;
@@ -158,7 +161,81 @@ mod tests {
         };
         let result = command_executor.execute_command_add(command);
         assert!(result.is_ok());
+        assert_eq!(
+            result.unwrap().description,
+            TaskDescription::new("walk the dog".to_string()).unwrap()
+        );
         let result = command_executor.execute_command_list(CommandList { status: None });
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_execute_command_delete() {
+        let db = Box::new(MockDb::new());
+        let mut command_executor = CommandExecutor::new(db);
+        let dog_task = command_executor
+            .execute_command_add(CommandAdd {
+                description: TaskDescription::new("walk the dog".to_string()).unwrap(),
+            })
+            .unwrap();
+        let fish_task = command_executor
+            .execute_command_add(CommandAdd {
+                description: TaskDescription::new("feed the fish".to_string()).unwrap(),
+            })
+            .unwrap();
+        command_executor
+            .execute_command_delete(CommandDelete { id: dog_task.id })
+            .unwrap();
+        let tasks = command_executor
+            .execute_command_list(CommandList { status: None })
+            .unwrap();
+        assert_eq!(tasks.len(), 1);
+        assert_eq!(tasks[0].id, fish_task.id);
+    }
+
+    #[test]
+    fn test_execute_command_mark_done() {
+        let db = Box::new(MockDb::new());
+        let mut command_executor = CommandExecutor::new(db);
+        let task = command_executor
+            .execute_command_add(CommandAdd {
+                description: TaskDescription::new("walk the dog".to_string()).unwrap(),
+            })
+            .unwrap();
+        assert_eq!(task.status, TaskStatus::Todo);
+        let result = command_executor
+            .execute_command_mark_done(CommandMarkDone { id: task.id })
+            .unwrap();
+        assert_eq!(result.task_id, task.id);
+        assert_eq!(result.old_status, TaskStatus::Todo);
+        assert_eq!(result.new_status, TaskStatus::Done);
+        let tasks = command_executor
+            .execute_command_list(CommandList { status: None })
+            .unwrap();
+        assert_eq!(tasks.len(), 1);
+        assert_eq!(tasks[0].status, TaskStatus::Done);
+    }
+
+    #[test]
+    fn test_execute_command_mark_in_progress() {
+        let db = Box::new(MockDb::new());
+        let mut command_executor = CommandExecutor::new(db);
+        let task = command_executor
+            .execute_command_add(CommandAdd {
+                description: TaskDescription::new("walk the dog".to_string()).unwrap(),
+            })
+            .unwrap();
+        assert_eq!(task.status, TaskStatus::Todo);
+        let result = command_executor
+            .execute_command_mark_in_progress(CommandMarkInProgress { id: task.id })
+            .unwrap();
+        assert_eq!(result.task_id, task.id);
+        assert_eq!(result.old_status, TaskStatus::Todo);
+        assert_eq!(result.new_status, TaskStatus::InProgress);
+        let tasks = command_executor
+            .execute_command_list(CommandList { status: None })
+            .unwrap();
+        assert_eq!(tasks.len(), 1);
+        assert_eq!(tasks[0].status, TaskStatus::InProgress);
     }
 }
