@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{Error, Result};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 pub enum TaskStatus {
     Todo,
     InProgress,
@@ -69,8 +69,7 @@ impl std::fmt::Display for Task {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            r#"
-Task: {}
+r#"Task: {}
 Description: {}
 Status: {}
 Created At: {}
@@ -81,7 +80,7 @@ Updated At: {}
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone)]
 pub struct TaskId {
     id: u32,
 }

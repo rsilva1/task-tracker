@@ -16,6 +16,15 @@ fn get_db_path() -> &'static PathBuf {
     })
 }
 
+pub trait TaskStorage {
+    fn create_task(&mut self, task: Task) -> Result<()>;
+    fn count_tasks(&self) -> u32;
+    fn get_task(&mut self, id: &TaskId) -> Option<&Task>;
+    fn get_tasks(&self) -> &Vec<Task>;
+    fn update_task(&mut self, id: &TaskId, task: Task) -> Result<()>;
+    fn delete_task(&mut self, id: &TaskId) -> Result<()>;
+}
+
 pub struct Db {
     pub tasks: Vec<Task>,
 }
@@ -33,8 +42,10 @@ impl Db {
             false => Ok(Self { tasks: vec![] }),
         }
     }
+}
 
-    pub fn create_task(&mut self, task: Task) -> Result<()> {
+impl TaskStorage for Db {
+    fn create_task(&mut self, task: Task) -> Result<()> {
         let tasks = &mut self.tasks;
         tasks.push(task);
         let content = serde_json::json!(tasks).to_string();
@@ -42,19 +53,23 @@ impl Db {
         Ok(())
     }
 
-    pub fn count_tasks(&self) -> u32 {
+    fn count_tasks(&self) -> u32 {
         self.tasks.len() as u32
     }
 
-    pub fn get_task(&mut self, id: &TaskId) -> Option<&Task> {
+    fn get_task(&mut self, id: &TaskId) -> Option<&Task> {
         self.tasks.iter().find(|task| task.id == *id)
     }
 
-    pub fn update_task(&mut self, id: TaskId, task: Task) -> Result<()> {
+    fn get_tasks(&self) -> &Vec<Task> {
+        &self.tasks
+    }
+
+    fn update_task(&mut self, id: &TaskId, task: Task) -> Result<()> {
         let position = self
             .tasks
             .iter()
-            .position(|task| task.id == id)
+            .position(|task| task.id == *id)
             .ok_or(Error::TaskNotFound { id: id.to_string() })?;
         self.tasks[position] = task;
         let content = serde_json::json!(&self.tasks).to_string();
@@ -62,12 +77,12 @@ impl Db {
         Ok(())
     }
 
-    pub fn delete_task(&mut self, id: TaskId) -> Result<()> {
+    fn delete_task(&mut self, id: &TaskId) -> Result<()> {
         let task_count = self.tasks.len();
         self.tasks = self
             .tasks
             .iter()
-            .filter(|task| task.id != id)
+            .filter(|task| task.id != *id)
             .cloned()
             .collect();
         if self.tasks.len() == task_count {

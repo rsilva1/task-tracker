@@ -6,50 +6,69 @@
 */
 
 mod error;
-use cli_commands::show_help;
 use command::{parse_command, Command};
 pub use error::{Error, Result};
-use execute_command::{
-    execute_command_add, execute_command_delete, execute_command_list, execute_command_mark_done,
-    execute_command_mark_in_progress, execute_command_update,
+use execute_command::CommandExecutor;
+use presentation::{
+    show_added_task, show_deleted_task, show_help, show_tasks, show_updated_status,
+    show_updated_task,
 };
 
-mod cli_commands;
 mod command;
 mod db;
 mod execute_command;
+mod presentation;
 mod task;
 
 fn main() {
+    match run() {
+        Ok(_) => (),
+        Err(e) => {
+            println!("Error: {}", e);
+        }
+    }
+}
+
+fn run() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
 
     if args.len() == 1 {
         show_help();
-        return;
+        return Ok(())
     }
 
-    let command = match parse_command(args) {
-        Ok(command) => command,
-        Err(e) => {
-            println!("Error: {}", e);
-            return;
-        }
-    };
+    let command = parse_command(args)?;
+
+    let db = Box::new(db::Db::new()?);
+    let mut command_executor = CommandExecutor::new(db);
 
     let result = match command {
-        Command::CommandAdd(command_add) => execute_command_add(command_add),
-        Command::CommandUpdate(command_update) => execute_command_update(command_update),
-        Command::CommandDelete(command_delete) => execute_command_delete(command_delete),
-        Command::CommandMarkInProgress(command_mark_in_progress) => {
-            execute_command_mark_in_progress(command_mark_in_progress)
-        }
-        Command::CommandMarkDone(command_mark_done) => execute_command_mark_done(command_mark_done),
-        Command::CommandList(command_list) => execute_command_list(command_list),
+        Command::CommandAdd(command_add) => command_executor
+            .execute_command_add(command_add)
+            .inspect(|r| show_added_task(r))
+            .map(|_| ()),
+        Command::CommandUpdate(command_update) => command_executor
+            .execute_command_update(command_update)
+            .inspect(|r| show_updated_task(r))
+            .map(|_| ()),
+        Command::CommandDelete(command_delete) => command_executor
+            .execute_command_delete(command_delete)
+            .inspect(|r| show_deleted_task(r))
+            .map(|_| ()),
+        Command::CommandMarkInProgress(command_mark_in_progress) => command_executor
+            .execute_command_mark_in_progress(command_mark_in_progress)
+            .inspect(|r| show_updated_status(r))
+            .map(|_| ()),
+        Command::CommandMarkDone(command_mark_done) => command_executor
+            .execute_command_mark_done(command_mark_done)
+            .inspect(|r| show_updated_status(r))
+            .map(|_| ()),
+        Command::CommandList(command_list) => command_executor
+            .execute_command_list(command_list)
+            .inspect(|r| show_tasks(r))
+            .map(|_| ()),
     };
+    result?;
 
-    if let Err(e) = result {
-        println!("Error: {}", e);
-    }
-
-    ()
+    Ok(())
 }
