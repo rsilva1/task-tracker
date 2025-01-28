@@ -96,11 +96,11 @@ impl TaskId {
         let id = id
             .parse::<u32>()
             .map_err(|_| Error::IdMustBeNumber { id })?;
-        return Ok(Self { id });
+        Ok(Self { id })
     }
 
     pub fn new(id: u32) -> Result<Self> {
-        return Ok(Self { id });
+        Ok(Self { id })
     }
 }
 

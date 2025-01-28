@@ -10,7 +10,7 @@ static DB_PATH: OnceLock<PathBuf> = OnceLock::new();
 
 fn get_db_path() -> &'static PathBuf {
     DB_PATH.get_or_init(|| {
-        let mut path = home::home_dir().expect(&Error::HomePathNotFound.to_string());
+        let mut path = home::home_dir().unwrap_or_else(|| panic!("{}", Error::HomePathNotFound));
         path.push(DB_FILENAME);
         path
     })

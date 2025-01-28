@@ -56,7 +56,7 @@ impl CommandExecutor {
             id: command.id.to_string(),
         })?;
         let task_id = task.id;
-        let old_status = task.status.clone();
+        let old_status = task.status;
         let mut updated_task = task.clone();
         updated_task.set_status(TaskStatus::InProgress);
         self.db.update_task(&command.id, updated_task)?;
@@ -75,7 +75,7 @@ impl CommandExecutor {
             id: command.id.to_string(),
         })?;
         let task_id = task.id;
-        let old_status = task.status.clone();
+        let old_status = task.status;
         let mut updated_task = task.clone();
         updated_task.set_status(TaskStatus::Done);
         self.db.update_task(&command.id, updated_task)?;

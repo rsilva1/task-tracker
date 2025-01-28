@@ -36,12 +36,12 @@ pub struct CommandList {
 
 #[derive(Debug)]
 pub enum Command {
-    CommandAdd(CommandAdd),
-    CommandUpdate(CommandUpdate),
-    CommandDelete(CommandDelete),
-    CommandMarkInProgress(CommandMarkInProgress),
-    CommandMarkDone(CommandMarkDone),
-    CommandList(CommandList),
+    Add(CommandAdd),
+    Update(CommandUpdate),
+    Delete(CommandDelete),
+    MarkInProgress(CommandMarkInProgress),
+    MarkDone(CommandMarkDone),
+    List(CommandList),
 }
 
 pub fn parse_command(args: Vec<String>) -> Result<Command> {
@@ -50,14 +50,12 @@ pub fn parse_command(args: Vec<String>) -> Result<Command> {
     }
     let cmd = args[1].clone();
     match cmd.as_str() {
-        "add" => parse_add_command(args).map(|cmd| Command::CommandAdd(cmd)),
-        "update" => parse_update_command(args).map(|cmd| Command::CommandUpdate(cmd)),
-        "delete" => parse_delete_command(args).map(|cmd| Command::CommandDelete(cmd)),
-        "mark-in-progress" => {
-            parse_mark_in_progress_command(args).map(|cmd| Command::CommandMarkInProgress(cmd))
-        }
-        "mark-done" => parse_mark_done_command(args).map(|cmd| Command::CommandMarkDone(cmd)),
-        "list" => parse_list_command(args).map(|cmd| Command::CommandList(cmd)),
+        "add" => parse_add_command(args).map(Command::Add),
+        "update" => parse_update_command(args).map(Command::Update),
+        "delete" => parse_delete_command(args).map(Command::Delete),
+        "mark-in-progress" => parse_mark_in_progress_command(args).map(Command::MarkInProgress),
+        "mark-done" => parse_mark_done_command(args).map(Command::MarkDone),
+        "list" => parse_list_command(args).map(Command::List),
         _ => Err(Error::UnknownCommand { command: cmd }),
     }
 }
@@ -109,7 +107,7 @@ fn parse_list_command(args: Vec<String>) -> Result<CommandList> {
     }
 }
 
-fn validate_args_length(args: &Vec<String>, expected: u8) -> Result<()> {
+fn validate_args_length(args: &[String], expected: u8) -> Result<()> {
     if args.len() != (expected as usize) {
         return Err(Error::WrongNumberOfArguments {
             expected,

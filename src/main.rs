@@ -43,29 +43,29 @@ fn run() -> Result<()> {
     let mut command_executor = CommandExecutor::new(db);
 
     let result = match command {
-        Command::CommandAdd(command_add) => command_executor
+        Command::Add(command_add) => command_executor
             .execute_command_add(command_add)
-            .inspect(|r| show_added_task(r))
+            .inspect(show_added_task)
             .map(|_| ()),
-        Command::CommandUpdate(command_update) => command_executor
+        Command::Update(command_update) => command_executor
             .execute_command_update(command_update)
-            .inspect(|r| show_updated_task(r))
+            .inspect(show_updated_task)
             .map(|_| ()),
-        Command::CommandDelete(command_delete) => command_executor
+        Command::Delete(command_delete) => command_executor
             .execute_command_delete(command_delete)
-            .inspect(|r| show_deleted_task(r))
+            .inspect(show_deleted_task)
             .map(|_| ()),
-        Command::CommandMarkInProgress(command_mark_in_progress) => command_executor
+        Command::MarkInProgress(command_mark_in_progress) => command_executor
             .execute_command_mark_in_progress(command_mark_in_progress)
-            .inspect(|r| show_updated_status(r))
+            .inspect(show_updated_status)
             .map(|_| ()),
-        Command::CommandMarkDone(command_mark_done) => command_executor
+        Command::MarkDone(command_mark_done) => command_executor
             .execute_command_mark_done(command_mark_done)
-            .inspect(|r| show_updated_status(r))
+            .inspect(show_updated_status)
             .map(|_| ()),
-        Command::CommandList(command_list) => command_executor
+        Command::List(command_list) => command_executor
             .execute_command_list(command_list)
-            .inspect(|r| show_tasks(r))
+            .inspect(show_tasks)
             .map(|_| ()),
     };
     result?;
